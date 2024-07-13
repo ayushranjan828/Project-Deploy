@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>News Uploader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8; /* Light gray background */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      max-width: 400px;
+      background-color: #ffc0cb; /* Pink background color */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-container h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .form-group button {
+      padding: 10px 20px;
+      background-color: #4CAF50; /* Green submit button */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .form-group button:hover {
+      background-color: #45a049; /* Darker green on hover */
+    }
+
+    .form-message {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9; /* Light gray message box */
+      display: none; /* Hide message box by default */
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Darbhanga Daily News</h2>
+    <form id="contact-form">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="contact">Contact Number:</label>
+        <input type="text" id="contact" name="contact" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="topic">News Topic:</label>
+        <input type="text" id="topic" name="topic" required>
+      </div>
+      <div class="form-group">
+        <label for="message">Content:</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+      </div>
+      <div class="form-group">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+    <div id="form-message" class="form-message"></div> <!-- Added form-message div -->
+  </div>
+
+  <script>
+    // Update this variable with your API Gateway URL
+    var apiGatewayUrl = 'https://4qqz8mnq0d.execute-api.eu-north-1.amazonaws.com/Prod';
+
+    document.getElementById('contact-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Generate a random ID
+      var id = generateRandomId();
+
+      var form = event.target;
+      var formData = new FormData(form);
+
+      // Create the contact object with the generated ID
+      var contact = {
+        id: id,
+        name: formData.get('name'),
+        contact: formData.get('contact'),
+        email: formData.get('email'),
+        topic: formData.get('topic'),
+        message: formData.get('message')
+      };
+      console.log(contact);
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', apiGatewayUrl, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          var messageElement = document.getElementById('form-message');
+          messageElement.style.display = 'block'; // Show the message box
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            console.log(response);
+            messageElement.textContent = response.message;
+            form.reset();
+          } else {
+            messageElement.textContent = 'Detail Submitted successfully!';
+          }
+        }
+      };
+
+      var contactJson = JSON.stringify(contact);
+      xhr.send(contactJson);
+      console.log(contactJson);
+    });
+
+    // Function to generate a random ID
+    function generateRandomId() {
+      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+  </script>
+
+</body>
+</html>
